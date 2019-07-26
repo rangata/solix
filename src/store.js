@@ -41,16 +41,26 @@ export default new Vuex.Store({
       'ентензопатия',
     ],
     patients: [],
+    currentPatient: '',
+    globalVariables: {
+      momentDateFormatLocale: 'DD.MM.Y',
+    },
   },
   mutations: {
+    addProcedureToPatient(state, payload) {
+      console.log(state.patients.indexOf(state.currentPatient));
+    },
     savePatient(state, payload) {
       state.patients.push(payload);
     },
     addPaymentToPatient(state, payload) {
-      state.patients[payload.keyId].patientInfo.payments.push({
+      state.patients[payload.idx].patientInfo.payments.push({
         amount: payload.amount,
         payed: payload.payed,
       });
+    },
+    setCurrentPatient(state, payload) {
+      state.currentPatient = payload;
     },
   },
   actions: {

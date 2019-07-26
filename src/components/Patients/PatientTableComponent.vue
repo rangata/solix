@@ -19,7 +19,9 @@
             </b-form-group>
         </b-col>
     </b-row>
-
+    <!--{{ this.$moment(this.selectedDate).format(this.$store.state.globalVariables.momentDateFormatLocale) }}-->
+    <!--<datepicker id="pm" v-model="selectedDate" format="dd.MM.yyyy"></datepicker>-->
+    <!--{{ this.$moment(Date.now()).format(this.$store.state.globalVariables.momentDateFormatLocale) > this.$moment(this.selectedDate).format(this.$store.state.globalVariables.momentDateFormatLocale) }}-->
     <!-- Main table element -->
     <b-table
             show-empty
@@ -54,45 +56,21 @@
         <template slot="row-details" slot-scope="row">
             <b-card>
                 <h3 class="text-capitalize text-left">
-                    Диагноза: {{ row.item.patientInfo.diagno }}
+                    Диагноза:
                 </h3>
+                <b-list-group>
+                    <b-list-group-item v-for="(diagnose, key) in row.item.patientInfo.diagno" :key="key" :active="key === 0">
+                        {{ diagnose }}
+                    </b-list-group-item>
+                </b-list-group>
                 <br>
+                <procedures-table :patient-procedures-data="row"></procedures-table>
                 <br>
-                <b-card header-bg-variant="info">
-                    <div slot="header">
-                        <h3>
-                            Процедури:
-                        </h3>
-                    </div>
-                    <b-card-body>
-                        <b-table :items="row.item.patientInfo.procedures" :show-empty="true">
-                        </b-table>
-                        <div v-show="!row.item.patientInfo.procedures.length">
-                            <b-btn variant="info">Добави процедура</b-btn>
-                        </div>
-                    </b-card-body>
-                </b-card>
+                <payments-table :patient-procedures-data="row.item.patientInfo"></payments-table>
                 <br>
-                <div v-show="row.item.patientInfo.payments.length > 0">
-                    <b-card header-bg-variant="warning">
-                         <div slot="header">
-                             <h3>
-                                 Плащания:
-                             </h3>
-                         </div>
-                        <b-card-body>
-                            <b-table :items="row.item.patientInfo.payments" :show-empty="true"
-                                     :fields="[{key: 'amount', label: 'Платено'}, {key: 'payed', label: 'Дата:'}]">
-                                <template slot="amount" slot-scope="row">
-                                    {{ Number.parseInt(row.item.amount).toFixed(2) }} лв.
-                                </template>
-                            </b-table>
-                        </b-card-body>
-                    </b-card>
-                </div>
                 <b-btn variant="success" @click="logpa(row.item)">Добави плащане</b-btn>
             </b-card>
-            <b-btn block variant="success">към пълното досие</b-btn>
+            <b-btn block variant="success" @click="navToFile(row.item.uniqId)">към пълното досие</b-btn>
         </template>
 
     </b-table>
@@ -116,13 +94,22 @@
         <b-form-group label-for="pm" label="Сума">
             <b-input id="pm" v-model="amountValue"></b-input>
         </b-form-group>
+        <b-form-group label-for="pm" label="Платена на:">
+            <datepicker id="pm" v-model="selectedDate" format="dd.MM.yyyy" inputClass="form-control" :value="selectedDate"></datepicker>
+        </b-form-group>
     </b-modal>
+
 </b-container>
 </template>
 
 <script>
+import Datepicker from 'vuejs-datepicker';
+import ProceduresTable from './ProceduresTable';
+import PaymentsTable from './PaymentsTable';
+
 export default {
   name: 'PatientTableComponent',
+  components: { Datepicker, PaymentsTable, ProceduresTable },
   data() {
     return {
       fields: [
@@ -149,29 +136,37 @@ export default {
       sortDirection: 'asc',
       filter: null,
       infoModal: {
-        id: 'info-modal',
+        id: 'payment-modal',
         title: '',
         content: '',
       },
       amountValue: '',
       currentPatient: '',
       currentPatientIndexId: 0,
+      selectedDate: this.$moment(Date.now()).format(this.$store.state.globalVariables.momentDateFormatLocale),
     };
   },
   mounted() {
     this.totalRows = this.$store.state.patients.length;
   },
   methods: {
-    navToFile (id) {
+
+    navToFile(id) {
+      // this.$store.commit('setCurrentPatient', )
+      const storePatientIndex = this.$store.state.patients.indexOf(this.$store.state.patients.find(element => element.uniqId === id));
+      if (storePatientIndex !== -1) {
+        this.currentPatient = this.$store.state.patients[storePatientIndex];
+      } else {
+        alert('Somethings wrong 162!');
+      }
+      this.$store.commit('setCurrentPatient', this.currentPatient);
       this.$router.push({
         name: 'patientFile',
         params: {
-          id: id
-        }
-      })
-    },
-    calcTotalPayed(items) {
-
+          id,
+          currentPatients: this.currentPatient,
+        },
+      });
     },
     logpa(info) {
       this.currentPatient = info;
@@ -193,7 +188,8 @@ export default {
         this.$store.commit('addPaymentToPatient', {
           keyId: this.currentPatientIndexId,
           amount: this.amountValue,
-          payed: this.$moment(Date.now()).format('DD.MM.YYYY'),
+          // payed: this.$moment(Date.now()).format(this.$store.state.globalVariables.momentDateFormatLocale),
+          payed: !this.selectedDate ? this.$moment(Date.now()).format(this.$store.state.globalVariables.momentDateFormatLocale) : this.$moment(this.selectedDate).format(this.$store.state.globalVariables.momentDateFormatLocale),
         });
         this.currentPatientIndexId = 0;
         this.amountValue = '';
