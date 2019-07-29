@@ -44,20 +44,25 @@ export default new Vuex.Store({
     currentPatient: '',
     globalVariables: {
       momentDateFormatLocale: 'DD.MM.Y',
+      datepickerDateFormatLocale: 'dd.MM.yyyy',
     },
   },
   mutations: {
     addProcedureToPatient(state, payload) {
-      console.log(state.patients.indexOf(state.currentPatient));
+      state.patients[payload.idx].patientInfo.procedures.push({
+          title: payload.procedureTitle,
+          qty: payload.procedureQty
+      });
     },
     savePatient(state, payload) {
       state.patients.push(payload);
     },
     addPaymentToPatient(state, payload) {
-      state.patients[payload.idx].patientInfo.payments.push({
-        amount: payload.amount,
-        payed: payload.payed,
+      state.patients[payload.recordId].patientInfo.payments.push({
+        amount: payload.payment.amount,
+        datePayed: payload.payment.payedOnDate,
       });
+      console.log(state.patients[payload.recordId]);
     },
     setCurrentPatient(state, payload) {
       state.currentPatient = payload;

@@ -16,6 +16,9 @@ import { GridPlugin } from '@syncfusion/ej2-vue-grids';
 import '@syncfusion/ej2-vue-grids/styles/bootstrap4.css';
 import VueMonthlyPicker from 'vue-monthly-picker';
 
+import Vuelidate from 'vuelidate'
+Vue.use(Vuelidate)
+
 // import * as md5 from 'js-md5';
 
 Vue.use(GridPlugin);

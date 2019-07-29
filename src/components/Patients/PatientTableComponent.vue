@@ -1,10 +1,15 @@
 <template>
 <b-container fluid>
     <br>
-    <!--{{ }}-->
     <b-row>
-        <b-col md="6" class="my-1">
-            <b-form-group label-cols-sm="3" label="Filter" class="mb-0">
+      <b-col md="6" class="my-1">
+        <b-form-group label-cols-sm="3" label="Поажи ми: " class="mb-0">
+          <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
+          записи на страница
+        </b-form-group>
+      </b-col>
+        <b-col lg="12">
+            <b-form-group  label="Търси:" class="text-left">
                 <b-input-group>
                     <b-form-input v-model="filter" placeholder="Търси"></b-form-input>
                     <b-input-group-append>
@@ -13,16 +18,8 @@
                 </b-input-group>
             </b-form-group>
         </b-col>
-        <b-col md="6" class="my-1">
-            <b-form-group label-cols-sm="3" label="Per page" class="mb-0">
-                <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
-            </b-form-group>
-        </b-col>
+
     </b-row>
-    <!--{{ this.$moment(this.selectedDate).format(this.$store.state.globalVariables.momentDateFormatLocale) }}-->
-    <!--<datepicker id="pm" v-model="selectedDate" format="dd.MM.yyyy"></datepicker>-->
-    <!--{{ this.$moment(Date.now()).format(this.$store.state.globalVariables.momentDateFormatLocale) > this.$moment(this.selectedDate).format(this.$store.state.globalVariables.momentDateFormatLocale) }}-->
-    <!-- Main table element -->
     <b-table
             show-empty
             stacked="md"
@@ -63,12 +60,13 @@
                         {{ diagnose }}
                     </b-list-group-item>
                 </b-list-group>
-                <br>
+              <br>
+              <br>
+
                 <procedures-table :patient-procedures-data="row"></procedures-table>
                 <br>
-                <payments-table :patient-procedures-data="row.item.patientInfo"></payments-table>
+                <payments-table :patient-procedures-data="row"></payments-table>
                 <br>
-                <b-btn variant="success" @click="logpa(row.item)">Добави плащане</b-btn>
             </b-card>
             <b-btn block variant="success" @click="navToFile(row.item.uniqId)">към пълното досие</b-btn>
         </template>
@@ -85,20 +83,6 @@
             ></b-pagination>
         </b-col>
     </b-row>
-
-    <!-- Info modal -->
-    <b-modal :id="infoModal.id" :title="infoModal.content.firstname + ' ' + infoModal.content.lastname + ' плаща:'"
-             @hide="resetInfoModal"
-             @ok="addPayment"
-             size="xl">
-        <b-form-group label-for="pm" label="Сума">
-            <b-input id="pm" v-model="amountValue"></b-input>
-        </b-form-group>
-        <b-form-group label-for="pm" label="Платена на:">
-            <datepicker id="pm" v-model="selectedDate" format="dd.MM.yyyy" inputClass="form-control" :value="selectedDate"></datepicker>
-        </b-form-group>
-    </b-modal>
-
 </b-container>
 </template>
 
@@ -150,9 +134,7 @@ export default {
     this.totalRows = this.$store.state.patients.length;
   },
   methods: {
-
     navToFile(id) {
-      // this.$store.commit('setCurrentPatient', )
       const storePatientIndex = this.$store.state.patients.indexOf(this.$store.state.patients.find(element => element.uniqId === id));
       if (storePatientIndex !== -1) {
         this.currentPatient = this.$store.state.patients[storePatientIndex];
@@ -168,37 +150,7 @@ export default {
         },
       });
     },
-    logpa(info) {
-      this.currentPatient = info;
-      this.$store.state.patients.forEach((patient, id) => {
-        if (patient === this.currentPatient) {
-          this.currentPatientIndexId = id;
-        }
-      });
-      this.info(this.currentPatient);
-    },
-    info(item, index, button) {
-      this.infoModal.content = item;
-      this.$root.$emit('bv::show::modal', this.infoModal.id, button);
-    },
-    addPayment() {
-      if (this.amountValue === 0) {
 
-      } else {
-        this.$store.commit('addPaymentToPatient', {
-          keyId: this.currentPatientIndexId,
-          amount: this.amountValue,
-          // payed: this.$moment(Date.now()).format(this.$store.state.globalVariables.momentDateFormatLocale),
-          payed: !this.selectedDate ? this.$moment(Date.now()).format(this.$store.state.globalVariables.momentDateFormatLocale) : this.$moment(this.selectedDate).format(this.$store.state.globalVariables.momentDateFormatLocale),
-        });
-        this.currentPatientIndexId = 0;
-        this.amountValue = '';
-      }
-    },
-    resetInfoModal() {
-      this.infoModal.title = '';
-      this.infoModal.content = '';
-    },
     onFiltered(filteredItems) {
       // Trigger pagination to update the number of buttons/pages due to filtering
       this.totalRows = filteredItems.length;

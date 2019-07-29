@@ -8,15 +8,19 @@
         <h3 class="text-capitalize text-left">
             <!--Диагноза: {{ currentPatient.patientInfo.diagno }}-->
         </h3>
-        <payments-table :patient-procedures-data="currentPatient.patientInfo"></payments-table>
+      {{ currentPatient.patientInfo}}
+      <procedures-table :patient-procedures-data="currentPatient"></procedures-table>
+        <!--<payments-table :patient-procedures-data="currentPatient.patientInfo"></payments-table>-->
     </b-card>
 </b-container>
 </template>
 
 <script>
 import PaymentsTable from './PaymentsTable';
+import ProceduresTable from "./ProceduresTable";
+
 export default {
-  components: { PaymentsTable },
+  components: {ProceduresTable, PaymentsTable },
   props: ['id'],
   name: 'PatientFile',
 
@@ -30,6 +34,7 @@ export default {
     // this.$_.filter(this.currentPatient.patientInfo.payments, (filteredPayment) => {
     //   return console.log(this.$moment(filteredPayment.payed).format('MM'));
     // })
+    console.log(this.$store.state.currentPatient);
   },
   beforeDestroy() {
     // this.$store.commit('setCurrentPatient', '');
