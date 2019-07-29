@@ -16,12 +16,16 @@
                 <b-col cols="6">
                   ОТ дата:
                   <br>
-                  <datepicker :typeable="true" :disable-dates="disabledDates" :format="$store.state.globalVariables.datepickerDateFormatLocale" inputClass="form-control form-control-lg" v-model="filterFromDate"></datepicker>
+                  ewf
+                  <date-range-picker                      :timePicker24Hour="timePicker24Hour"
+                                                          :locale-data="{ firstDay: 1, format: 'DD-MM-YYYY HH:mm:ss' }"
+                  ></date-range-picker>
+                  <!--<datepicker :typeable="true" :disable-dates="disabledDates" :format="$store.state.globalVariables.datepickerDateFormatLocale" inputClass="form-control form-control-lg" v-model="filterFromDate"></datepicker>-->
                 </b-col>
                 <b-col cols="6">
                   ДО тази дата:
                   <br>
-                  <datepicker :typeable="true" :format="$store.state.globalVariables.datepickerDateFormatLocale" inputClass="form-control form-control-lg" v-model="filterToDate"></datepicker>
+                  <!--<datepicker :typeable="true" :format="$store.state.globalVariables.datepickerDateFormatLocale" inputClass="form-control form-control-lg" v-model="filterToDate"></datepicker>-->
 
                 </b-col>
               </b-row>
@@ -90,10 +94,12 @@
 
 <script>
 import VueMonthlyPicker from 'vue-monthly-picker/src/components/VueMonthlyPicker';
-import Datepicker from "vuejs-datepicker";
+import DateRangePicker from 'vue2-daterange-picker'
+
+
 
 export default {
-  components: {Datepicker, VueMonthlyPicker },
+  components: {VueMonthlyPicker, DateRangePicker  },
   props: ['patientProceduresData'],
   name: 'PaymentsTable',
   data() {
